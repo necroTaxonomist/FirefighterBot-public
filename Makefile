@@ -10,9 +10,9 @@ INCDIR = include
 OBJDIR = obj
 BINDIR = .
 
-SRC := $(wildcard $(SRCDIR)/*.c)
+SRC := $(wildcard $(SRCDIR)/*.cpp)
 INC := $(wildcard $(INCDIR)/*.h)
-OBJ := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRC))
+OBJ := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
 
 INCFLAGS := $(patsubst %/,-I%,$(dir $(wildcard $(INCDIR)/.)))
 
