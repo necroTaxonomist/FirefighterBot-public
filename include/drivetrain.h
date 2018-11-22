@@ -3,7 +3,11 @@
 
 #include "units.h"
 
+#include <memory>
+
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 
 //----
 // Class: DriveTrain
@@ -29,10 +33,31 @@ private:
     {
         float leftSpeed;
         float rightSpeed;
+
         TimeSec duration;
-    }
+
+        Command* next;
+
+        Command(float _leftSpeed, float _rightSpeed, TimeSec _duration = 0):
+            leftSpeed(_leftSpeed),
+            rightSpeed(_rightSpeed),
+            duration(_duration),
+            next(nullptr)
+        {
+        }
+    };
 
 private:
     DistanceFt width;
     SpeedFtPerSec maxSpeed;
+
+    Command* cmdQueue;
+    std::mutex cmdMutex;
+    std::condition_variable cmdNotEmpty;
+    bool stop;
+
+    std::unique_ptr<std::thread> queueThread;
+
+private:
+    friend void driveTrainThread(DriveTrain* dt);
 };
