@@ -1,12 +1,15 @@
 
 #include "drivetrain.h"
 
+#include <chrono>
+#include <iostream>
+
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 
 void driveTrainThread(DriveTrain* dt);
 
-DriveTrain::DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed):
+DriveTrain::DriveTrain():
     calibrated(false),
     cmdQueue(nullptr),
     stop(true),
@@ -15,7 +18,7 @@ DriveTrain::DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed):
 }
 
 DriveTrain::DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed):
-    calibrated(false),
+    calibrated(true),
     width(_width),
     maxSpeed(_maxSpeed),
     cmdQueue(nullptr),
@@ -33,6 +36,10 @@ DriveTrain::~DriveTrain()
     {
         stop = true;
         cmdNotEmpty.notify_all();
+
+        cmdCancel = true;
+        cmdCancelCond.notify_one();
+
         lk.unlock();
 
         queueThread->join();
@@ -45,10 +52,20 @@ DriveTrain::~DriveTrain()
 
 void DriveTrain::set(float leftSpeed, float rightSpeed)
 {
+    setMotors(leftSpeed, rightSpeed);
 
+    std::unique_lock<std::mutex> lk(cmdMutex);
+
+    cmdCancel = true;
+    cmdCancelCond.notify_one();
+
+    lk.unlock();
+
+    // Set twice just in case
+    setMotors(leftSpeed, rightSpeed);
 }
 
-void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance)
+void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance, bool wait)
 {
     if (!calibrated)
         return;
@@ -58,12 +75,18 @@ void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance)
     SpeedFtPerSec realSpeed = MIN(ABS(speed), maxSpeed);
     TimeSec duration = distance / realSpeed;
 
-    Command* cmd = new Command(motorSpeed, motorSpeed, distance != 0 ? duration : 0);
+    Command* cmd = new Command(motorSpeed, motorSpeed, distance != 0 ? duration : 0, wait);
 
-    addToQueue(cmd);
+    addToQueue(cmd, true);
+
+    if (wait)
+    {
+        cmd->waitUntilDone();
+        delete cmd;
+    }
 }
 
-void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle)
+void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle, bool wait)
 {
     if (!calibrated)
         return;
@@ -74,22 +97,41 @@ void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle)
     SpeedRadPerSec realSpeed = MIN(ABS(speed), maxAngularSpeed);
     TimeSec duration = angle / realSpeed;
 
-    Command* cmd = new Command(motorSpeed, -motorSpeed, angle != 0 ? duration : 0);
+    Command* cmd = new Command(motorSpeed, -motorSpeed, angle != 0 ? duration : 0, wait);
 
-    addToQueue(cmd);
+    addToQueue(cmd, true);
+
+    if (wait)
+    {
+        cmd->waitUntilDone();
+        delete cmd;
+    }
 }
 
-void DriveTrain::addToQueue(Command* cmd)
+void DriveTrain::setMotors(float leftSpeed, float rightSpeed)
 {
-    std::unique_lock<std::mutex> lk(dt->cmdMutex);
+    std::unique_lock<std::mutex> lk(motorsMutex);
 
-    if (!cmdQueue)
+    std::cout << "Set motors (" << leftSpeed << "," << rightSpeed << ")\n";
+
+    lk.unlock();
+}
+
+void DriveTrain::addToQueue(Command* cmd, bool lock)
+{
+    std::unique_lock<std::mutex> lk(cmdMutex, std::defer_lock);
+
+    if (lock)
+        lk.lock();
+
+    if (cmdQueue == nullptr)
     {
         cmdQueue = cmd;
+        cmd->next = nullptr;
     }
     else
     {
-        Command prev = cmdQueue;
+        Command* prev = cmdQueue;
 
         while (prev->next)
         {
@@ -97,24 +139,32 @@ void DriveTrain::addToQueue(Command* cmd)
         }
 
         prev->next = cmd;
+        cmd->next = nullptr;
     }
 
-    lk.unlock();
+    cmdNotEmpty.notify_one();
+
+    if (lock)
+        lk.unlock();
 }
 
-void DriveTrain::takeFromQueue(Command** cmd)
+void DriveTrain::takeFromQueue(Command** cmd, bool lock)
 {
     if (!cmd)
         return;
 
-    std::unique_lock<std::mutex> lk(dt->cmdMutex);
+    std::unique_lock<std::mutex> lk(cmdMutex, std::defer_lock);
+
+    if (lock)
+        lk.lock();
 
     *cmd = cmdQueue;
 
-    if (cmdQueue)
+    if (cmdQueue != nullptr)
         cmdQueue = cmdQueue->next;
 
-    lk.unlock();
+    if (lock)
+        lk.unlock();
 }
 
 void driveTrainThread(DriveTrain* dt)
@@ -131,15 +181,54 @@ void driveTrainThread(DriveTrain* dt)
                 return;
             }
 
-            if (dt->cmdQueue)
+            if (dt->cmdQueue != nullptr)
                 break;
             else
+            {
                 dt->cmdNotEmpty.wait(lk);
+            }
         }
 
         // Run a single command off the queue
-        Command cmd = nullptr;
-        takeFromQueue(&cmd);
+        DriveTrain::Command* cmd = nullptr;
+        dt->takeFromQueue(&cmd, false);
+
+        if (cmd) // This should always be true but you never know
+        {
+            dt->setMotors(cmd->leftSpeed, cmd->rightSpeed);
+
+            if (cmd->duration > 0)
+            {
+                auto targetTime = std::chrono::system_clock::now() + std::chrono::milliseconds((long int)(cmd->duration * 1000));
+
+                // Wait for the required duration
+                // Or until the command is cancelled
+                dt->cmdCancel = false;
+                while (!dt->cmdCancel && std::chrono::system_clock::now() < targetTime)
+                {
+                    dt->cmdCancelCond.wait_until(lk, targetTime);
+                }
+
+                if (dt->cmdCancel)
+                {
+                    dt->cmdCancel = false;
+                }
+                else
+                {
+                    // Stop motors
+                    dt->setMotors(0, 0);
+                }
+            }
+
+            if (!cmd->wait)
+            {
+                delete cmd;
+            }
+            else
+            {
+                cmd->setDone();
+            }
+        }
 
         lk.unlock();
     }
