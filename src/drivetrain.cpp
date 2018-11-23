@@ -54,6 +54,8 @@ void DriveTrain::set(float leftSpeed, float rightSpeed)
 {
     setMotors(leftSpeed, rightSpeed);
 
+    clearQueue();
+
     std::unique_lock<std::mutex> lk(cmdMutex);
 
     cmdCancel = true;
@@ -106,6 +108,31 @@ void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle, bool wait)
         cmd->waitUntilDone();
         delete cmd;
     }
+}
+
+void DriveTrain::clearQueue()
+{
+    std::unique_lock<std::mutex> lk(cmdMutex);
+
+    Command* cmd = nullptr;
+    for (takeFromQueue(&cmd, false); cmd; takeFromQueue(&cmd, false))
+    {
+        if (!cmd->wait)
+        {
+            delete cmd;
+        }
+        else
+        {
+            cmd->setDone();
+        }
+    }
+
+    lk.unlock();
+}
+
+void DriveTrain::forceStop()
+{
+    set(0,0);
 }
 
 void DriveTrain::setMotors(float leftSpeed, float rightSpeed)

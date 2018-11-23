@@ -17,9 +17,10 @@ int main(int argc, char** argv)
         if (t < 0)
             break;
 
-        dt.drive(1, t);
-        std::cout << "Unblocked\n";
+        dt.drive(1, t, true);
     }
+
+    dt.forceStop();
 
     return 0;
 }
