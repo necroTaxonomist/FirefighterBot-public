@@ -53,6 +53,7 @@ private:
 
     DistanceFt width;
     SpeedFtPerSec maxSpeed;
+    SpeedRadPerSec maxAngularSpeed;
 
     Command* cmdQueue;
     std::mutex cmdMutex;
@@ -63,6 +64,7 @@ private:
 
 private:
     void addToQueue(Command* cmd);
+    void takeFromQueue(Command** cmd);
 
     friend void driveTrainThread(DriveTrain* dt);
 };

@@ -1,6 +1,9 @@
 
 #include "drivetrain.h"
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define MIN(A,B) ((A) < (B) ? (A) : (B))
+
 void driveTrainThread(DriveTrain* dt);
 
 DriveTrain::DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed):
@@ -18,6 +21,8 @@ DriveTrain::DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed):
     cmdQueue(nullptr),
     stop(false)
 {
+    maxAngularSpeed = 2 * maxSpeed / width;
+
     queueThread = std::unique_ptr<std::thread>(new std::thread(driveTrainThread, this));
 }
 
@@ -49,7 +54,9 @@ void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance)
         return;
 
     float motorSpeed = speed / maxSpeed;
-    TimeSec duration = distance / speed;
+
+    SpeedFtPerSec realSpeed = MIN(ABS(speed), maxSpeed);
+    TimeSec duration = distance / realSpeed;
 
     Command* cmd = new Command(motorSpeed, motorSpeed, distance != 0 ? duration : 0);
 
@@ -63,7 +70,9 @@ void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle)
 
     SpeedFtPerSec rectSpeed = speed * width / 2;
     float motorSpeed = rectSpeed / maxSpeed;
-    TimeSec duration = angle / speed;
+
+    SpeedRadPerSec realSpeed = MIN(ABS(speed), maxAngularSpeed);
+    TimeSec duration = angle / realSpeed;
 
     Command* cmd = new Command(motorSpeed, -motorSpeed, angle != 0 ? duration : 0);
 
@@ -93,6 +102,21 @@ void DriveTrain::addToQueue(Command* cmd)
     lk.unlock();
 }
 
+void DriveTrain::takeFromQueue(Command** cmd)
+{
+    if (!cmd)
+        return;
+
+    std::unique_lock<std::mutex> lk(dt->cmdMutex);
+
+    *cmd = cmdQueue;
+
+    if (cmdQueue)
+        cmdQueue = cmdQueue->next;
+
+    lk.unlock();
+}
+
 void driveTrainThread(DriveTrain* dt)
 {
     while (true)
@@ -114,6 +138,8 @@ void driveTrainThread(DriveTrain* dt)
         }
 
         // Run a single command off the queue
+        Command cmd = nullptr;
+        takeFromQueue(&cmd);
 
         lk.unlock();
     }
