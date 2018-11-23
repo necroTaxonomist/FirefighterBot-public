@@ -6,6 +6,7 @@
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
+#define MAX(A,B) ((A) > (B) ? (A) : (B))
 
 void driveTrainThread(DriveTrain* dt);
 
@@ -17,15 +18,13 @@ DriveTrain::DriveTrain():
 {
 }
 
-DriveTrain::DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed):
+DriveTrain::DriveTrain(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio):
     calibrated(true),
-    width(_width),
-    maxSpeed(_maxSpeed),
+    driveRatio(_driveRatio),
+    turnRatio(_turnRatio),
     cmdQueue(nullptr),
     stop(false)
 {
-    maxAngularSpeed = 2 * maxSpeed / width;
-
     queueThread = std::unique_ptr<std::thread>(new std::thread(driveTrainThread, this));
 }
 
@@ -72,9 +71,11 @@ void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance, bool wait)
     if (!calibrated)
         return;
 
-    float motorSpeed = speed / maxSpeed;
+    float motorSpeed = speed / driveRatio;
+    motorSpeed = MIN(motorSpeed, 1.0f);
+    motorSpeed = MAX(motorSpeed, -1.0f);
 
-    SpeedFtPerSec realSpeed = MIN(ABS(speed), maxSpeed);
+    SpeedFtPerSec realSpeed = MIN(ABS(speed), driveRatio);
     TimeSec duration = distance / realSpeed;
 
     Command* cmd = new Command(motorSpeed, motorSpeed, distance != 0 ? duration : 0, wait);
@@ -93,13 +94,14 @@ void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle, bool wait)
     if (!calibrated)
         return;
 
-    SpeedFtPerSec rectSpeed = speed * width / 2;
-    float motorSpeed = rectSpeed / maxSpeed;
+    float motorSpeed = speed / turnRatio;
+    motorSpeed = MIN(motorSpeed, 1.0f);
+    motorSpeed = MAX(motorSpeed, -1.0f);
 
-    SpeedRadPerSec realSpeed = MIN(ABS(speed), maxAngularSpeed);
+    SpeedRadPerSec realSpeed = MIN(ABS(speed), turnRatio);
     TimeSec duration = angle / realSpeed;
 
-    Command* cmd = new Command(motorSpeed, -motorSpeed, angle != 0 ? duration : 0, wait);
+    Command* cmd = new Command(-motorSpeed, motorSpeed, angle != 0 ? duration : 0, wait);
 
     addToQueue(cmd, true);
 

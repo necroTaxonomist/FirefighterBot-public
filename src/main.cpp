@@ -14,13 +14,19 @@ int main(int argc, char** argv)
     {
         std::cin >> t;
 
+        for (int i = 0; i < 4; ++i)
+        {
+            dt.drive(1, 3);
+            dt.turnInPlace(1, PI / 2);
+        }
+
+        std::cin >> t;
+
+        dt.forceStop();
+
         if (t < 0)
             break;
-
-        dt.drive(1, t, true);
     }
-
-    dt.forceStop();
 
     return 0;
 }

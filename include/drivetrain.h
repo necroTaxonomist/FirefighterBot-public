@@ -21,7 +21,7 @@ class DriveTrain
 {
 public:
     DriveTrain();
-    DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed);
+    DriveTrain(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio);
     ~DriveTrain();
 
     void set(float leftSpeed, float rightSpeed);
@@ -84,9 +84,8 @@ private:
 private:
     bool calibrated;
 
-    DistanceFt width;
-    SpeedFtPerSec maxSpeed;
-    SpeedRadPerSec maxAngularSpeed;
+    SpeedFtPerSec driveRatio;
+    SpeedRadPerSec turnRatio;
 
     Command* cmdQueue;
     std::mutex cmdMutex;
