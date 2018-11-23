@@ -4,10 +4,12 @@
 
 #include <iostream>
 
-DriveTrain dt(1,1);
+DriveTrain dt;
 
 int main(int argc, char** argv)
 {
+    dt.calibrate(1,1);
+
     int t = 0;
 
     for(;;)

@@ -13,25 +13,15 @@ void driveTrainThread(DriveTrain* dt);
 DriveTrain::DriveTrain():
     calibrated(false),
     cmdQueue(nullptr),
-    stop(true),
+    stop(false),
     queueThread(nullptr)
 {
-}
-
-DriveTrain::DriveTrain(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio):
-    calibrated(true),
-    driveRatio(_driveRatio),
-    turnRatio(_turnRatio),
-    cmdQueue(nullptr),
-    stop(false)
-{
-    queueThread = std::unique_ptr<std::thread>(new std::thread(driveTrainThread, this));
 }
 
 DriveTrain::~DriveTrain()
 {
     std::unique_lock<std::mutex> lk(cmdMutex);
-    if (!stop)
+    if (calibrated && !stop)
     {
         stop = true;
         cmdNotEmpty.notify_all();
@@ -47,6 +37,15 @@ DriveTrain::~DriveTrain()
     {
         lk.unlock();
     }
+}
+
+void DriveTrain::calibrate(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio)
+{
+    driveRatio = _driveRatio;
+    turnRatio = _turnRatio;
+    calibrated = true;
+
+    queueThread = std::unique_ptr<std::thread>(new std::thread(driveTrainThread, this));
 }
 
 void DriveTrain::set(float leftSpeed, float rightSpeed)
@@ -148,6 +147,9 @@ void DriveTrain::setMotors(float leftSpeed, float rightSpeed)
     std::unique_lock<std::mutex> lk(motorsMutex);
 
     std::cout << "Set motors (" << leftSpeed << "," << rightSpeed << ")\n";
+
+    leftMotor = leftSpeed;
+    rightMotor = rightSpeed;
 
     lk.unlock();
 }

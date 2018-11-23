@@ -2,6 +2,7 @@
 #pragma once
 
 #include "units.h"
+#include "motor.h"
 
 #include <memory>
 
@@ -21,8 +22,9 @@ class DriveTrain
 {
 public:
     DriveTrain();
-    DriveTrain(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio);
     ~DriveTrain();
+
+    void calibrate(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio);
 
     void set(float leftSpeed, float rightSpeed);
 
@@ -96,6 +98,8 @@ private:
     std::condition_variable cmdCancelCond;
 
     std::mutex motorsMutex;
+    Motor leftMotor;
+    Motor rightMotor;
 
     std::unique_ptr<std::thread> queueThread;
 
