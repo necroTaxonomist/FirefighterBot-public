@@ -51,6 +51,12 @@ DriveTrain::~DriveTrain()
 
 void DriveTrain::set(float leftSpeed, float rightSpeed)
 {
+    leftSpeed = MIN(leftSpeed, 1.0f);
+    leftSpeed = MAX(leftSpeed, -1.0f);
+
+    rightSpeed = MIN(rightSpeed, 1.0f);
+    rightSpeed = MAX(rightSpeed, -1.0f);
+
     setMotors(leftSpeed, rightSpeed);
 
     clearQueue();
