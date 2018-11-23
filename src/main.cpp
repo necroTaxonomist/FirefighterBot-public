@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv)
 {
-    DriveTrain dt(0,0);
+    DriveTrain dt;
 
     return 0;
 }

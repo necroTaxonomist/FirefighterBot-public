@@ -20,6 +20,7 @@
 class DriveTrain
 {
 public:
+    DriveTrain();
     DriveTrain(DistanceFt _width, SpeedFtPerSec _maxSpeed);
     ~DriveTrain();
 
@@ -48,6 +49,8 @@ private:
     };
 
 private:
+    bool calibrated;
+
     DistanceFt width;
     SpeedFtPerSec maxSpeed;
 
@@ -59,5 +62,7 @@ private:
     std::unique_ptr<std::thread> queueThread;
 
 private:
+    void addToQueue(Command* cmd);
+
     friend void driveTrainThread(DriveTrain* dt);
 };
