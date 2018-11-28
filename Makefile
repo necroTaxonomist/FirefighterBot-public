@@ -3,7 +3,7 @@ TARGET = ff_bot.out
 
 CC = g++
 CFLAGS = --std=c++11 -g
-LFLAGS = -pthread
+LFLAGS = -pthread -lwiringPi
 
 SRCDIR = src
 INCDIR = include
