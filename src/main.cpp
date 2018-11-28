@@ -4,31 +4,65 @@
 
 #include <iostream>
 
+#include <thread>
+#include <mutex>
+
+enum MovementMode
+{
+    PATROL,
+    SUPPRESSION
+};
+
+MovementMode mode = PATROL;
+std::mutex modeMutex;
+
 DriveTrain dt;
+
+void controlThreadCB();
+void moveThreadCB();
+
+void setMode(MovementMode newMode);
 
 int main(int argc, char** argv)
 {
-    dt.calibrate(1,1);
+    std::thread moveThread(moveThreadCB);
 
-    int t = 0;
-
-    for(;;)
-    {
-        std::cin >> t;
-
-        for (int i = 0; i < 4; ++i)
-        {
-            dt.drive(1, 3);
-            dt.turnInPlace(1, PI / 2);
-        }
-
-        std::cin >> t;
-
-        dt.forceStop();
-
-        if (t < 0)
-            break;
-    }
+    controlThreadCB();
 
     return 0;
+}
+
+void controlThreadCB()
+{
+    for (;;)
+    {
+
+    }
+}
+
+void moveThreadCB()
+{
+    for (;;)
+    {
+        modeMutex.lock();
+        MovementMode curMode = mode;
+        modeMutex.unlock();
+
+        if (curMode == PATROL)
+        {
+
+        }
+        else if (curMode == SUPPRESSION)
+        {
+
+        }
+    }
+}
+
+void setMode(MovementMode newMode)
+{
+    modeMutex.lock()
+    mode = newMode;
+    dt.forceStop();
+    modeMutex.unlock();
 }
