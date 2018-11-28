@@ -20,6 +20,9 @@ Motor::Motor(int _pwmPin, int _fwdPin, int _revPin):
 
 Motor::~Motor()
 {
+    digitalWrite(fwdPin, 0);
+    digitalWrite(revPin, 0);
+    pwmWrite(pwmPin, 0);
 }
 
 void Motor::set(const float& speed)
