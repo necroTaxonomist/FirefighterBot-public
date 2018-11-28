@@ -4,7 +4,7 @@
 class Motor
 {
 public:
-    Motor(int _pwmPin, int _reversePin);
+    Motor(int _pwmPin, int _fwdPin, int _revPin);
     ~Motor();
 
     void set(const float& speed);
@@ -13,5 +13,6 @@ public:
 
 private:
     int pwmPin;
-    int reversePin;
+    int fwdPin;
+    int revPin;
 };
