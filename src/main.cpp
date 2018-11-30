@@ -50,11 +50,23 @@ void moveThreadCB()
 
         if (curMode == PATROL)
         {
-
+			dt::set(.6, .75);
+			if (/*fire image detected TODO*/)
+			{
+				setMode(SUPPRESSION);
+			}
         }
-        else if (curMode == SUPPRESSION)
+        else if (curMode == SUPPRESSION)//assuming that when entering this mode, the fire is straight ahead
         {
-
+			if (/*fire has been suppressed TODO*/)
+			{
+				st::drive(-1, 1, true); //back away from the extinguished fire
+				setMode(PATROL);
+			}
+			else if (!/*temperature sensor picks up fire TODO*/)
+			{
+				dt::set(.5, .5);
+			}
         }
     }
 }
