@@ -10,10 +10,15 @@
 #include <mutex>
 #include <atomic>
 
+#include <unistd.h>
+
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))
 
 #define MIN_FIRE_TEMP 80
+
+//#define CALIBRATE_DRIVE
+//#define CALIBRATE_TURN
 
 enum MovementMode
 {
@@ -39,6 +44,19 @@ void setMode(MovementMode newMode);
 
 int main(int argc, char** argv)
 {
+#ifdef CALIBRATE_DRIVE
+    dt.set(1,1);
+    sleep(1);
+    dt.set(0,0);
+    return 0;
+#endif
+#ifdef CALIBRATE_TURN
+    dt.set(-1,1);
+    sleep(1);
+    dt.set(0,0);
+    return 0;
+#endif
+	
 	dt.calibrate(10,360);
     
     std::thread moveThread(moveThreadCB);
