@@ -13,6 +13,6 @@ public:
     // Writes the distance and angle into the provided vars
     bool checkForFire(DistanceFt* dist, AngleRad* angle);
 
-    // Same as check for fire, but blocks until there is fire
-    bool waitForFire(DistanceFt* dist, AngleRad* angle);
+    // Same as check for fire, but blocks until there is/isn't fire
+    bool waitForFire(DistanceFt* dist, AngleRad* angle, bool look = true);
 };
