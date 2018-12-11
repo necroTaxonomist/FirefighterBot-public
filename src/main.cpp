@@ -2,6 +2,7 @@
 #include "units.h"
 #include "drivetrain.h"
 #include "detector.h"
+#include "pump.h"
 
 #include <iostream>
 
@@ -28,6 +29,8 @@ DriveTrain dt(1,1);
 Detector detector;
 std::atomic<AngleDeg> angleToFire(0);
 std::atomic<TempF> fireTemp(0);
+
+Pump pump;
 
 void controlThreadCB();
 void moveThreadCB();
@@ -78,13 +81,14 @@ void controlThreadCB()
 
             if (!foundFire)
             {
-                // deactivate pump here
-
+                // Deactivate the pump when the fire is gone
+                pump.deactivate();
                 setMode(PATROL);
             }
             else if (temp >= MIN_FIRE_TEMP)
             {
-                // activate pump here
+                // Activate the pump when close enough
+                pump.activate();
             }
         }
     }
