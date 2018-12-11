@@ -1,5 +1,5 @@
 
-#include "camera.h"
+#include "detector.h"
 
 Detector::Detector()
 {

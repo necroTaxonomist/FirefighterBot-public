@@ -24,7 +24,7 @@ enum MovementMode
 MovementMode mode = PATROL;
 std::mutex modeMutex;
 
-DriveTrain dt(1,1);
+DriveTrain dt;
 
 Detector detector;
 std::atomic<AngleDeg> angleToFire(0);
@@ -39,6 +39,8 @@ void setMode(MovementMode newMode);
 
 int main(int argc, char** argv)
 {
+	dt.calibrate(10,360);
+    
     std::thread moveThread(moveThreadCB);
 
     controlThreadCB();
@@ -133,7 +135,7 @@ void moveThreadCB()
 
 void setMode(MovementMode newMode)
 {
-    modeMutex.lock()
+    modeMutex.lock();
     mode = newMode;
     dt.forceStop();
     modeMutex.unlock();

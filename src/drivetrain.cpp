@@ -12,7 +12,9 @@
 #define RIGHT_FWD 4
 #define RIGHT_REV 5
 
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
+#define ABS(X) ((X) * SIGN(X))
+
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
 
@@ -85,6 +87,8 @@ void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance, bool wait)
 {
     if (!calibrated)
         return;
+       
+    distance = ABS(distance);
 
     float motorSpeed = speed / driveRatio;
     motorSpeed = MIN(motorSpeed, 1.0f);
@@ -108,6 +112,8 @@ void DriveTrain::turnInPlace(SpeedDegPerSec speed, AngleDeg angle, bool wait)
 {
     if (!calibrated)
         return;
+    
+    angle = ABS(angle);
 
     float motorSpeed = speed / turnRatio;
     motorSpeed = MIN(motorSpeed, 1.0f);
