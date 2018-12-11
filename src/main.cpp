@@ -124,12 +124,8 @@ void moveThreadCB()
 
             if (fireTemp.load() < MIN_FIRE_TEMP)
             {
-                // get close to the fire
-                dt.drive(.25);
-            }
-            else
-            {
-                dt.forceStop();
+                // get close to the fire (by about 1/4 ft)
+                dt.drive(.5, .25, true);
             }
         }
     }
