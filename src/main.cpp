@@ -12,7 +12,7 @@
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))
 
-#define DESIRED_FIRE_DISTANCE .5
+#define MIN_FIRE_TEMP 80
 
 enum MovementMode
 {
@@ -27,6 +27,7 @@ DriveTrain dt(1,1);
 
 Detector detector;
 std::atomic<AngleDeg> angleToFire(0);
+std::atomic<TempF> fireTemp(0);
 
 void controlThreadCB();
 void moveThreadCB();
@@ -53,10 +54,12 @@ void controlThreadCB()
         if (curMode == PATROL)
         {
             AngleDeg angle;
+            TempF temp;
 
             // Wait until a fire is found
-            bool foundFire = detector.waitForFire(&angle, true);
+            bool foundFire = detector.waitForFire(&angle, &temp, true);
             angleToFire.store(angle);
+            fireTemp.store(temp);
 
             if (foundFire)
             {
@@ -66,14 +69,22 @@ void controlThreadCB()
         else if (curMode == SUPPRESSION)
         {
             AngleDeg angle;
+            TempF temp;
 
             // Poll the detector for fire
-            bool foundFire = detector.checkForFire(&angle, true);
+            bool foundFire = detector.checkForFire(&angle, &temp, true);
             angleToFire.store(angle);
+            fireTemp.store(temp);
 
             if (!foundFire)
             {
+                // deactivate pump here
+
                 setMode(PATROL);
+            }
+            else if (temp >= MIN_FIRE_TEMP)
+            {
+                // activate pump here
             }
         }
     }
@@ -90,29 +101,32 @@ void moveThreadCB()
         if (curMode == PATROL)
         {
 			// Drive in a 2x2ft square
-            drive(1, 2);
-            turnInPlace(90, -90);
-            drive(1, 2);
-            turnInPlace(90, -90);
-            drive(1, 2);
-            turnInPlace(90, -90);
-            drive(1, 2);
-            turnInPlace(90, -90, true); // wait on the last command
+            dt.drive(1, 2);
+            dt.turnInPlace(90, -90);
+            dt.drive(1, 2);
+            dt.turnInPlace(90, -90);
+            dt.drive(1, 2);
+            dt.turnInPlace(90, -90);
+            dt.drive(1, 2);
+            dt.turnInPlace(90, -90, true); // wait on the last command
         }
         else if (curMode == SUPPRESSION)
         {
             if (angleToFire.load() != 0)
             {
                 // turn towards the fire
-                turnInPlace(90, angleToFire, true);
+                dt.turnInPlace(90, angleToFire, true);
             }
 
-            /*if (distToFire > DESIRED_FIRE_DISTANCE)
+            if (fireTemp.load() < MIN_FIRE_TEMP)
             {
                 // get close to the fire
-                drive(.5, distToFire - DESIRED_FIRE_DISTANCE, true);
-                distToFire = DESIRED_FIRE_DISTANCE;
-            }*/
+                dt.drive(.25);
+            }
+            else
+            {
+                dt.forceStop();
+            }
         }
     }
 }
