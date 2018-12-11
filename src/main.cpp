@@ -91,20 +91,20 @@ void moveThreadCB()
         {
 			// Drive in a 2x2ft square
             drive(1, 2);
-            turnInPlace(1, PI/2);
+            turnInPlace(90, -90);
             drive(1, 2);
-            turnInPlace(1, PI/2);
+            turnInPlace(90, -90);
             drive(1, 2);
-            turnInPlace(1, PI/2);
+            turnInPlace(90, -90);
             drive(1, 2);
-            turnInPlace(1, PI/2, true); // wait on the last command
+            turnInPlace(90, -90, true); // wait on the last command
         }
         else if (curMode == SUPPRESSION)
         {
             if (angleToFire.load() != 0)
             {
                 // turn towards the fire
-                turnInPlace(1, angleToFire, true);
+                turnInPlace(90, angleToFire, true);
             }
 
             /*if (distToFire > DESIRED_FIRE_DISTANCE)
