@@ -25,8 +25,8 @@ std::mutex modeMutex;
 DriveTrain dt;
 
 Detector detector;
-DistanceFt distToFire;
-AngleRad angleToFire;
+DistanceFt distToFire = 0;
+AngleRad angleToFire = 0;
 
 void controlThreadCB();
 void moveThreadCB();
