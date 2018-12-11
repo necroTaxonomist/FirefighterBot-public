@@ -6,7 +6,7 @@ void pinoutInit()
     static bool init = false;
     if (!init)
     {
-        wiringPiSetup();
+        wiringPiSetupGpio();
         init = true;
     }
 }
