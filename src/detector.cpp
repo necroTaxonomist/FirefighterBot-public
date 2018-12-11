@@ -11,13 +11,13 @@ Detector::~Detector()
 
 }
 
-bool Detector::checkForFire(DistanceFt* dist, AngleRad* angle)
+bool Detector::checkForFire(AngleRad* angle)
 {
     return false;
 }
 
-bool Detector::waitForFire(DistanceFt* dist, AngleRad* angle, bool look)
+bool Detector::waitForFire(AngleRad* angle, bool look)
 {
     // block here
-    return checkForFire(dist, angle);
+    return checkForFire(angle);
 }
