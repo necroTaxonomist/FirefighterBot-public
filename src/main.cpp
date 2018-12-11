@@ -22,7 +22,7 @@ enum MovementMode
 MovementMode mode = PATROL;
 std::mutex modeMutex;
 
-DriveTrain dt;
+DriveTrain dt(1,1);
 
 Detector detector;
 DistanceFt distToFire = 0;
