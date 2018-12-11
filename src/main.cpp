@@ -1,11 +1,17 @@
 
 #include "units.h"
 #include "drivetrain.h"
+#include "detector.h"
 
 #include <iostream>
 
 #include <thread>
 #include <mutex>
+
+#define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
+#define ABS(X) ((X) * SIGN(X))
+
+#define DESIRED_FIRE_DISTANCE .5
 
 enum MovementMode
 {
@@ -17,6 +23,10 @@ MovementMode mode = PATROL;
 std::mutex modeMutex;
 
 DriveTrain dt;
+
+Detector detector;
+DistanceFt distToFire = 0;
+AngleRad angleToFire = 0;
 
 void controlThreadCB();
 void moveThreadCB();
@@ -36,7 +46,28 @@ void controlThreadCB()
 {
     for (;;)
     {
+        modeMutex.lock();
+        MovementMode curMode = mode;
+        modeMutex.unlock();
 
+        if (curMode == PATROL)
+        {
+            // Look for fire
+            bool foundFire = detector.waitForFire(&distToFire, &angleToFire, true);
+            if (foundFire)
+            {
+                setMode(SUPPRESSION);
+            }
+        }
+        else if (curMode == SUPPRESSION)
+        {
+            // Wait until the fire is gone
+            bool foundFire = detector.waitForFire(nullptr, nullptr, false);
+            if (!foundFire)
+            {
+                setMode(PATROL);
+            }
+        }
     }
 }
 
@@ -50,23 +81,31 @@ void moveThreadCB()
 
         if (curMode == PATROL)
         {
-			dt::set(.6, .75);
-			if (/*fire image detected TODO*/)
-			{
-				setMode(SUPPRESSION);
-			}
+			// Drive in a 2x2ft square
+            drive(1, 2);
+            turnInPlace(1, PI/2);
+            drive(1, 2);
+            turnInPlace(1, PI/2);
+            drive(1, 2);
+            turnInPlace(1, PI/2);
+            drive(1, 2);
+            turnInPlace(1, PI/2, true); // wait on the last command
         }
-        else if (curMode == SUPPRESSION)//assuming that when entering this mode, the fire is straight ahead
+        else if (curMode == SUPPRESSION)
         {
-			if (/*fire has been suppressed TODO*/)
-			{
-				st::drive(-1, 1, true); //back away from the extinguished fire
-				setMode(PATROL);
-			}
-			else if (!/*temperature sensor picks up fire TODO*/)
-			{
-				dt::set(.5, .5);
-			}
+            if (angleToFire != 0)
+            {
+                // turn towards the fire
+                turnInPlace(1, angleToFire, true);
+                angleToFire = 0;
+            }
+
+            if (distToFire > DESIRED_FIRE_DISTANCE)
+            {
+                // get close to the fire
+                drive(.5, distToFire - DESIRED_FIRE_DISTANCE, true);
+                distToFire = DESIRED_FIRE_DISTANCE;
+            }
         }
     }
 }
