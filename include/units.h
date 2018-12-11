@@ -9,5 +9,11 @@ typedef float SpeedFtPerSec;
 typedef float AngleRad;
 typedef float SpeedRadPerSec;
 
+typedef float AngleDeg;
+typedef float SpeedDegPerSec;
+
 typedef float TimeSec;
 typedef float TimeMs;
+
+typedef float TempF;
+typedef float TempC;

@@ -11,12 +11,12 @@ Detector::~Detector()
 
 }
 
-bool Detector::checkForFire(AngleRad* angle)
+bool Detector::checkForFire(AngleDeg* angle)
 {
     return false;
 }
 
-bool Detector::waitForFire(AngleRad* angle, bool look)
+bool Detector::waitForFire(AngleDeg* angle, bool look)
 {
     // block here
     return checkForFire(angle);

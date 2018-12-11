@@ -49,7 +49,7 @@ DriveTrain::~DriveTrain()
     }
 }
 
-void DriveTrain::calibrate(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio)
+void DriveTrain::calibrate(SpeedFtPerSec _driveRatio, SpeedDegPerSec _turnRatio)
 {
     driveRatio = _driveRatio;
     turnRatio = _turnRatio;
@@ -104,7 +104,7 @@ void DriveTrain::drive(SpeedFtPerSec speed, DistanceFt distance, bool wait)
     }
 }
 
-void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle, bool wait)
+void DriveTrain::turnInPlace(SpeedDegPerSec speed, AngleDeg angle, bool wait)
 {
     if (!calibrated)
         return;
@@ -113,7 +113,7 @@ void DriveTrain::turnInPlace(SpeedRadPerSec speed, AngleRad angle, bool wait)
     motorSpeed = MIN(motorSpeed, 1.0f);
     motorSpeed = MAX(motorSpeed, -1.0f);
 
-    SpeedRadPerSec realSpeed = MIN(ABS(speed), turnRatio);
+    SpeedDegPerSec realSpeed = MIN(ABS(speed), turnRatio);
     TimeSec duration = angle / realSpeed;
 
     Command* cmd = new Command(-motorSpeed, motorSpeed, angle != 0 ? duration : 0, wait);

@@ -26,7 +26,7 @@ std::mutex modeMutex;
 DriveTrain dt(1,1);
 
 Detector detector;
-std::atomic<AngleRad> angleToFire(0);
+std::atomic<AngleDeg> angleToFire(0);
 
 void controlThreadCB();
 void moveThreadCB();
@@ -52,7 +52,7 @@ void controlThreadCB()
 
         if (curMode == PATROL)
         {
-            AngleRad angle;
+            AngleDeg angle;
 
             // Wait until a fire is found
             bool foundFire = detector.waitForFire(&angle, true);
@@ -65,7 +65,7 @@ void controlThreadCB()
         }
         else if (curMode == SUPPRESSION)
         {
-            AngleRad angle;
+            AngleDeg angle;
 
             // Poll the detector for fire
             bool foundFire = detector.checkForFire(&angle, true);

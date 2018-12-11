@@ -24,12 +24,12 @@ public:
     DriveTrain();
     ~DriveTrain();
 
-    void calibrate(SpeedFtPerSec _driveRatio, SpeedRadPerSec _turnRatio);
+    void calibrate(SpeedFtPerSec _driveRatio, SpeedDegPerSec _turnRatio);
 
     void set(float leftSpeed, float rightSpeed);
 
     void drive(SpeedFtPerSec speed, DistanceFt distance = 0, bool wait = false);
-    void turnInPlace(SpeedRadPerSec speed, AngleRad angle = 0, bool wait = false);
+    void turnInPlace(SpeedDegPerSec speed, AngleDeg angle = 0, bool wait = false);
 
     void clearQueue();
     void forceStop();
@@ -87,7 +87,7 @@ private:
     bool calibrated;
 
     SpeedFtPerSec driveRatio;
-    SpeedRadPerSec turnRatio;
+    SpeedDegPerSec turnRatio;
 
     Command* cmdQueue;
     std::mutex cmdMutex;
