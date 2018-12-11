@@ -75,7 +75,7 @@ void controlThreadCB()
             TempF temp;
 
             // Poll the detector for fire
-            bool foundFire = detector.checkForFire(&angle, &temp, true);
+            bool foundFire = detector.checkForFire(&angle, &temp);
             angleToFire.store(angle);
             fireTemp.store(temp);
 
