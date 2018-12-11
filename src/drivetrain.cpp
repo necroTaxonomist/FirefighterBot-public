@@ -4,6 +4,14 @@
 #include <chrono>
 #include <iostream>
 
+#define LEFT_PWM 1
+#define LEFT_FWD 2
+#define LEFT_REV 3
+
+#define RIGHT_PWM 7
+#define RIGHT_FWD 4
+#define RIGHT_REV 5
+
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
@@ -14,6 +22,8 @@ DriveTrain::DriveTrain():
     calibrated(false),
     cmdQueue(nullptr),
     stop(false),
+    leftMotor(LEFT_PWM, LEFT_FWD, LEFT_REV),
+    rightMotor(RIGHT_PWM, RIGHT_FWD, RIGHT_REV),
     queueThread(nullptr)
 {
 }
