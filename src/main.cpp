@@ -126,13 +126,13 @@ void moveThreadCB()
         {
 			// Drive in a 2x2ft square
             dt.drive(1, 2);
-            dt.turnInPlace(90, -90);
+            dt.turnInPlace(-90, 90);
             dt.drive(1, 2);
-            dt.turnInPlace(90, -90);
+            dt.turnInPlace(-90, 90);
             dt.drive(1, 2);
-            dt.turnInPlace(90, -90);
+            dt.turnInPlace(-90, 90);
             dt.drive(1, 2);
-            dt.turnInPlace(90, -90, true); // wait on the last command
+            dt.turnInPlace(-90, 90, true); // wait on the last command
         }
         else if (curMode == SUPPRESSION)
         {
