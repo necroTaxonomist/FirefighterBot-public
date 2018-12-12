@@ -22,12 +22,6 @@
 #define DRIVE_RATIO 2.25
 #define TURN_RATIO 360
 
-#ifndef NO_PI
-#define WAIT_TIME 0
-#else
-#define WAIT_TIME 1
-#endif
-
 #define TURN_INC 30
 #define APPROACH_INC .25
 
@@ -71,9 +65,6 @@ int main(int argc, char** argv)
             // Turn in place
             dt.turnInPlace(360, TURN_INC, true);
 
-            // Wait a litle bit
-            sleep(WAIT_TIME);
-
             // Check for fire
             found = detector.checkForFire(angleToFire);
         }
@@ -91,9 +82,6 @@ int main(int argc, char** argv)
             // Drive forward .25ft
             dt.turnInPlace(360, angleToFire);
             dt.drive(1, APPROACH_INC, true);
-
-            // Wait a litle bit
-            sleep(WAIT_TIME);
 
             // Check for fire
             found = detector.checkForFire(angleToFire);
