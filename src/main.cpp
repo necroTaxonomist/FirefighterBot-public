@@ -22,8 +22,8 @@ DriveTrain dt;
 Detector detector;
 Pump pump;
 
-void controlThreadCB();
-void moveThreadCB();
+void exitControlThread();
+std::atomic<bool> exit(false);
 
 void setMode(MovementMode newMode);
 
@@ -51,6 +51,9 @@ int main(int argc, char** argv)
         // Until fire is found
         for (bool found = false; !found;)
         {
+            if (exit.load())
+                goto done;
+
             // Turn 20 degrees in place
             dt.turnInPlace(360, 20, true);
 
@@ -67,6 +70,9 @@ int main(int argc, char** argv)
         // Until the fire is gone
         for (bool found = false; found;)
         {
+            if (exit.load())
+                goto done;
+            
             // Adjust position to look at fire
             // Drive forward .25ft
             dt.turnInPlace(360, angleToFire);
@@ -83,16 +89,22 @@ int main(int argc, char** argv)
         pump.deactivate();
     }
 
-    //std::thread moveThread(moveThreadCB);
-    //std::thread controlThread(controlThreadCB);
-
-    /*for (int i = -1; i != 0;)
-    {
-        std::cout << "Enter 0 to stop:";
-        std::cin >> i;
-    }
-
+done:
     dt.forceStop();
 
-    return 0;*/
+    return 0;
+}
+
+void exitControlThread()
+{
+    for (;;)
+    {
+        std::string input;
+        std::cin >> input;
+
+        if (input == "stop")
+            break;
+    }
+
+    exit.store(true);
 }
