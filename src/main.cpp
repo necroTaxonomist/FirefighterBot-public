@@ -52,7 +52,7 @@ int main(int argc, char** argv)
         for (bool found = false; !found;)
         {
             // Turn 20 degrees in place
-            dt.turnInplace(360, 20, true);
+            dt.turnInPlace(360, 20, true);
 
             // Wait a litle bit
             sleep(1);
@@ -67,7 +67,9 @@ int main(int argc, char** argv)
         // Until the fire is gone
         for (bool found = false; found;)
         {
-            // Drive forward 1/4 a foot
+            // Adjust position to look at fire
+            // Drive forward .25ft
+            dt.turnInPlace(360, angleToFire);
             dt.drive(1, .25, true);
 
             // Wait a litle bit
