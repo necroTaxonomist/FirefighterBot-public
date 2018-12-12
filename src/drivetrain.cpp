@@ -4,13 +4,13 @@
 #include <chrono>
 #include <iostream>
 
-#define LEFT_PWM 1
-#define LEFT_FWD 2
-#define LEFT_REV 3
+#define LEFT_PWM 13
+#define LEFT_FWD 19
+#define LEFT_REV 26
 
-#define RIGHT_PWM 7
-#define RIGHT_FWD 4
-#define RIGHT_REV 5
+#define RIGHT_PWM 18
+#define RIGHT_FWD 23
+#define RIGHT_REV 24
 
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))

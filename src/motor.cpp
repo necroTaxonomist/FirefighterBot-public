@@ -3,6 +3,8 @@
 
 #include "pinout.h"
 
+#include <cstdio>
+
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))
 
@@ -29,7 +31,7 @@ void Motor::set(const float& speed)
 {
     digitalWrite(fwdPin, SIGN(speed) < 0);
     digitalWrite(revPin, SIGN(speed) > 0);
-    pwmWrite(pwmPin, ABS(speed));
+    pwmWrite(pwmPin, ABS(speed)*1024);
 }
 
 Motor& Motor::operator=(const float& rhs)

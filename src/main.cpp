@@ -15,30 +15,15 @@
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))
 
-#define MIN_FIRE_TEMP 80
-
 //#define CALIBRATE_DRIVE
 //#define CALIBRATE_TURN
 
-enum MovementMode
-{
-    PATROL,
-    SUPPRESSION
-};
-
-MovementMode mode = PATROL;
-std::mutex modeMutex;
-
 DriveTrain dt;
-
 Detector detector;
-std::atomic<AngleDeg> angleToFire(0);
-std::atomic<TempF> fireTemp(0);
-
 Pump pump;
 
-void controlThreadCB();
-void moveThreadCB();
+void exitControlThread();
+std::atomic<bool> exit(false);
 
 void setMode(MovementMode newMode);
 
@@ -56,105 +41,70 @@ int main(int argc, char** argv)
     dt.set(0,0);
     return 0;
 #endif
-	
-	dt.calibrate(10,360);
-    
-    std::thread moveThread(moveThreadCB);
 
-    controlThreadCB();
+	dt.calibrate(2.25,360);
+
+    for (;;)
+    {
+        AngleDeg angleToFire;
+
+        // Until fire is found
+        for (bool found = false; !found;)
+        {
+            if (exit.load())
+                goto done;
+
+            // Turn 20 degrees in place
+            dt.turnInPlace(360, 20, true);
+
+            // Wait a litle bit
+            sleep(1);
+
+            // Check for fire
+            found = detector.checkForFire(&angleToFire);
+        }
+
+        // Activate the pump
+        pump.activate();
+
+        // Until the fire is gone
+        for (bool found = false; found;)
+        {
+            if (exit.load())
+                goto done;
+            
+            // Adjust position to look at fire
+            // Drive forward .25ft
+            dt.turnInPlace(360, angleToFire);
+            dt.drive(1, .25, true);
+
+            // Wait a litle bit
+            sleep(1);
+
+            // Check for fire
+            found = detector.checkForFire(&angleToFire);
+        }
+
+        // Deactivate the pump
+        pump.deactivate();
+    }
+
+done:
+    dt.forceStop();
 
     return 0;
 }
 
-void controlThreadCB()
+void exitControlThread()
 {
     for (;;)
     {
-        modeMutex.lock();
-        MovementMode curMode = mode;
-        modeMutex.unlock();
+        std::string input;
+        std::cin >> input;
 
-        if (curMode == PATROL)
-        {
-            AngleDeg angle;
-            TempF temp;
-
-            // Wait until a fire is found
-            bool foundFire = detector.waitForFire(&angle, &temp, true);
-            angleToFire.store(angle);
-            fireTemp.store(temp);
-
-            if (foundFire)
-            {
-                setMode(SUPPRESSION);
-            }
-        }
-        else if (curMode == SUPPRESSION)
-        {
-            AngleDeg angle;
-            TempF temp;
-
-            // Poll the detector for fire
-            bool foundFire = detector.checkForFire(&angle, &temp);
-            angleToFire.store(angle);
-            fireTemp.store(temp);
-
-            if (!foundFire)
-            {
-                // Deactivate the pump when the fire is gone
-                pump.deactivate();
-                setMode(PATROL);
-            }
-            else if (temp >= MIN_FIRE_TEMP)
-            {
-                // Activate the pump when close enough
-                pump.activate();
-            }
-        }
+        if (input == "stop")
+            break;
     }
-}
 
-void moveThreadCB()
-{
-    for (;;)
-    {
-        modeMutex.lock();
-        MovementMode curMode = mode;
-        modeMutex.unlock();
-
-        if (curMode == PATROL)
-        {
-			// Drive in a 2x2ft square
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90);
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90);
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90);
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90, true); // wait on the last command
-        }
-        else if (curMode == SUPPRESSION)
-        {
-            if (angleToFire.load() != 0)
-            {
-                // turn towards the fire
-                dt.turnInPlace(90, angleToFire, true);
-            }
-
-            if (fireTemp.load() < MIN_FIRE_TEMP)
-            {
-                // get close to the fire (by about 1/4 ft)
-                dt.drive(.5, .25, true);
-            }
-        }
-    }
-}
-
-void setMode(MovementMode newMode)
-{
-    modeMutex.lock();
-    mode = newMode;
-    dt.forceStop();
-    modeMutex.unlock();
+    exit.store(true);
 }
