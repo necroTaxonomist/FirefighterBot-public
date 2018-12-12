@@ -17,7 +17,7 @@
 
 #define MIN_FIRE_TEMP 80
 
-//#define CALIBRATE_DRIVE
+#define CALIBRATE_DRIVE
 //#define CALIBRATE_TURN
 
 enum MovementMode
@@ -57,11 +57,18 @@ int main(int argc, char** argv)
     return 0;
 #endif
 	
-	dt.calibrate(10,360);
+	dt.calibrate(27/12,350);
     
     std::thread moveThread(moveThreadCB);
+    std::thread controlThread(controlThreadCB);
 
-    controlThreadCB();
+    for (int i = -1; i != 0;)
+    {
+        std::cout << "Enter 0 to stop:";
+        std::cin >> i;
+    }
+    
+    dt.forceStop();
 
     return 0;
 }
@@ -125,14 +132,14 @@ void moveThreadCB()
         if (curMode == PATROL)
         {
 			// Drive in a 2x2ft square
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90);
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90);
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90);
-            dt.drive(1, 2);
-            dt.turnInPlace(-90, 90, true); // wait on the last command
+            dt.drive(2, 2);
+            dt.turnInPlace(-360, 90);
+            dt.drive(2, 2);
+            dt.turnInPlace(-360, 90);
+            dt.drive(2, 2);
+            dt.turnInPlace(-360, 90);
+            dt.drive(2, 2);
+            dt.turnInPlace(-360, 90, true); // wait on the last command
         }
         else if (curMode == SUPPRESSION)
         {
