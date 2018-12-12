@@ -1,5 +1,6 @@
 # Fire Supression Robot
 
+Dian Guo, Tanner Muldoon, Kamran Sirohi, Alex McArthur
 The purpose of the project is to program a robot that automatically detects a fire, drives to it, and sprays water on the fire to put it out.
 The robot uses a Raspberry Pi and mbed to control it and gather information from the camera.
 It can also be manually controlled using a Bluetooth controller like a phone, and will send an alert to the phone if there is a fire.
