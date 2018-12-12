@@ -1,13 +1,16 @@
 
 #include "detector.h"
 
-void detectorThread(Detector* det);
+void detectorThread(Detector& det);
 
 Detector::Detector():
     done(false),
-    detectThread(nullptr)
+    detectThread(nullptr),
+    found(false),
+    foundAngle(0),
+
 {
-    detectThread = std::unique_ptr<std::thread>(new std::thread(detectorThread, this));
+    detectThread = std::unique_ptr<std::thread>(new std::thread(detectorThread, *this));
 }
 
 Detector::~Detector()
@@ -16,86 +19,37 @@ Detector::~Detector()
     detectThread->join();
 }
 
-bool Detector::checkForFire(AngleDeg* angle, float* dist)
+bool Detector::checkForFire(AngleDeg& angle)
 {
     std::unique_lock<std::mutex> lk(foundMutex);
-
-    if (angle)
-        *angle = foundAngle;
-
-    if (dist)
-        *dist = foundDist;
-
-    bool check = found;
-
-    lk.unlock();
-
-    return check;
+    angle = foundAngle;
+    return found;
 }
 
-bool Detector::waitForFire(AngleDeg* angle, float* dist, bool look)
+bool Detector::waitForFire(bool look, AngleDeg& angle)
 {
     std::unique_lock<std::mutex> lk(foundMutex);
 
-    if (look)
-    {
-        condFound.wait(lk, []{return found;});
-    }
-    else
-    {
-        condLost.wait(lk, []{return !found;});
-    }
+    while (found != look)
+        condFound.wait(lk);
 
-    std::unique_lock<std::mutex> lk(foundMutex);
-
-    if (angle)
-        *angle = foundAngle;
-
-    if (dist)
-        *dist = foundDist;
-
-    bool check = found;
-
-    lk.unlock();
-
-    return check;
+    angle = foundAngle;
+    return found;
 }
 
-void Detector::detect()
-{
-    // check the camera for fire
-    // call find() if it is found
-    // call lose() if it not found
-}
-
-void Detector::find(AngleDeg _foundAngle, float _foundDist)
+void Detector::update(bool _found, AngleDeg _foundAngle)
 {
     std::unique_lock<std::mutex> lk(foundMutex);
 
-    found = true;
+    found = _found;
     foundAngle = _foundAngle;
-    foundDist = _foundDist;
-
     condFound.notify_all();
-
-    lk.unlock();
 }
 
-void Detector::lose()
-{
-    std::unique_lock<std::mutex> lk(foundMutex);
-
-    found = false;
-
-    condLost.notify_all();
-
-    lk.unlock();
-}
-
-void detectorThread(Detector* det)
+void detectorThread(Detector& det)
 {
     while (!det.done.load())
     {
-        det.detect();
+        // looks for fire and calls update
     }
 }

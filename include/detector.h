@@ -18,10 +18,10 @@ public:
 
     // Returns true if there is fire
     // Writes the distance and angle into the provided vars
-    bool checkForFire(AngleDeg* angle = nullptr, float* dist = nullptr);
+    bool checkForFire(AngleDeg& angle);
 
     // Same as check for fire, but blocks until there is/isn't fire
-    bool waitForFire(AngleDeg* angle = nullptr, float* dist = nullptr, bool look = true);
+    bool waitForFire(bool look, AngleDeg& angle);
 
 private:
     std::atomic<bool> done;
@@ -30,17 +30,12 @@ private:
 
     bool found;
     AngleDeg foundAngle;
-    float foundDist;
 
     std::mutex foundMutex;
-    std::condition_variable condFound;
-    std::condition_variable condLost;
+    std::condition_variable foundCond;
 
 private:
-    void detect();
+    void update(bool _found, AngleDeg _foundAngle = 0);
 
-    void find(AngleDeg _foundAngle, float _foundDist);
-    void lose();
-
-    friend void detectorThread(Detector* det);
+    friend void detectorThread(Detector& det);
 };
