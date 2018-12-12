@@ -30,10 +30,8 @@ DriveTrain dt;
 Detector detector;
 Pump pump;
 
-void exitThreadCB();
-std::atomic<bool> exit(false);
-
-void setMode(MovementMode newMode);
+void stopThreadCB();
+std::atomic<bool> stop(false);
 
 int main(int argc, char** argv)
 {
@@ -52,8 +50,8 @@ int main(int argc, char** argv)
 
 	dt.calibrate(DRIVE_RATIO, TURN_RATIO);
 
-    std::thread exitThread(exitThreadCB);
-    exitThread.detach();
+    std::thread stopThread(stopThreadCB);
+    stopThread.detach();
 
     for (;;)
     {
@@ -62,7 +60,7 @@ int main(int argc, char** argv)
         // Until fire is found
         for (bool found = false; !found;)
         {
-            if (exit.load())
+            if (stop.load())
                 goto done;
 
             // Turn in place
@@ -81,7 +79,7 @@ int main(int argc, char** argv)
         // Until the fire is gone
         for (bool found = false; found;)
         {
-            if (exit.load())
+            if (stop.load())
                 goto done;
 
             // Adjust position to look at fire
@@ -106,7 +104,7 @@ done:
     return 0;
 }
 
-void exitThreadCB()
+void stopThreadCB()
 {
     for (;;)
     {
@@ -117,5 +115,5 @@ void exitThreadCB()
             break;
     }
 
-    exit.store(true);
+    stop.store(true);
 }
