@@ -11,6 +11,7 @@
 #include <atomic>
 
 #include <unistd.h>
+#include <cstdlib>
 
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))
@@ -34,7 +35,7 @@ DriveTrain dt;
 Detector detector;
 Pump pump;
 
-void stopThreadCB();
+void controlThreadCB();
 std::atomic<bool> stop(false);
 
 int main(int argc, char** argv)
@@ -54,8 +55,8 @@ int main(int argc, char** argv)
 
 	dt.calibrate(DRIVE_RATIO, TURN_RATIO);
 
-    std::thread stopThread(stopThreadCB);
-    stopThread.detach();
+    std::thread controlThread(controlThreadCB);
+    controlThread.detach();
 
     for (;;)
     {
@@ -81,7 +82,7 @@ int main(int argc, char** argv)
         pump.activate();
 
         // Until the fire is gone
-        for (bool found = false; found;)
+        for (bool found = true; found;)
         {
             if (stop.load())
                 goto done;
@@ -108,7 +109,7 @@ done:
     return 0;
 }
 
-void stopThreadCB()
+void controlThreadCB()
 {
     for (;;)
     {
@@ -117,6 +118,21 @@ void stopThreadCB()
 
         if (input == "stop")
             break;
+        else if (input == "find")
+        {
+            int angle = (rand() % 62) - 31;
+
+            if (angle < 0)
+                std::cout << "Simulating fire " << angle << "d right\n";
+            else
+                std::cout << "Simulating fire " << angle << "d left\n";
+
+            detector.update(true, angle);
+        }
+        else if (input == "lose")
+        {
+            detector.update(false);
+        }
     }
 
     stop.store(true);
