@@ -23,7 +23,7 @@
 #define TURN_RATIO 360
 
 #ifndef NO_PI
-#define WAIT_TIME 10
+#define WAIT_TIME 0
 #else
 #define WAIT_TIME 1
 #endif
@@ -120,7 +120,8 @@ void controlThreadCB()
             break;
         else if (input == "find")
         {
-            int angle = (rand() % 62) - 31;
+            float angle = ((rand() % 620) - 310) * .1f;
+            int time =  (random() % 3) + 1;
 
             if (angle < 0)
                 std::cout << "Simulating fire " << angle << "d right\n";
@@ -128,10 +129,12 @@ void controlThreadCB()
                 std::cout << "Simulating fire " << angle << "d left\n";
 
             detector.update(true, angle);
-        }
-        else if (input == "lose")
-        {
+
+            sleep(time);
+
             detector.update(false);
+
+            std::cout << "Simulated fire out\n";
         }
     }
 
