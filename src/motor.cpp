@@ -13,25 +13,25 @@ Motor::Motor(int _pwmPin, int _fwdPin, int _revPin):
     fwdPin(_fwdPin),
     revPin(_revPin)
 {
-    pinoutInit();
+    gpioInit();
 
-    pinMode(pwmPin, PWM_OUTPUT);
-    pinMode(fwdPin, OUTPUT);
-    pinMode(revPin, OUTPUT);
+    gpioPinMode(pwmPin, PWM_OUTPUT);
+    gpioPinMode(fwdPin, OUTPUT);
+    gpioPinMode(revPin, OUTPUT);
 }
 
 Motor::~Motor()
 {
-    digitalWrite(fwdPin, 0);
-    digitalWrite(revPin, 0);
-    pwmWrite(pwmPin, 0);
+    gpioDigitalWrite(fwdPin, 0);
+    gpioDigitalWrite(revPin, 0);
+    gpioPwmWrite(pwmPin, 0);
 }
 
 void Motor::set(const float& speed)
 {
-    digitalWrite(fwdPin, SIGN(speed) < 0);
-    digitalWrite(revPin, SIGN(speed) > 0);
-    pwmWrite(pwmPin, ABS(speed)*1024);
+    gpioDigitalWrite(fwdPin, SIGN(speed) < 0);
+    gpioDigitalWrite(revPin, SIGN(speed) > 0);
+    gpioPwmWrite(pwmPin, ABS(speed));
 }
 
 Motor& Motor::operator=(const float& rhs)

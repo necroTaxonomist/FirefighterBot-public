@@ -37,5 +37,5 @@ private:
 private:
     void update(bool _found, AngleDeg _foundAngle = 0);
 
-    friend void detectorThread(Detector& det);
+    friend void detectorThread(Detector* det);
 };
