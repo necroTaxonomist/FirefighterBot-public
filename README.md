@@ -38,4 +38,4 @@ Path Creation Implementation:
 Suppression Implementation:
  Turns on the pump, spraying water forward. The robot then moves forward, stops, goes into Detection mode.  If it sees fire, it sprays again, repeating this until it no longer detects fire.  Then it returns to its original position and reenters patrol mode.
 
-![alt text](https://raw.githubusercontent.com/tmuldoon3/FirefighterBot/blob/masterLogicDiagram.png)
+![alt text](https://raw.githubusercontent.com/tmuldoon3/FirefighterBot/blob/master/LogicDiagram.png)
