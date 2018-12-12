@@ -22,7 +22,7 @@ DriveTrain dt;
 Detector detector;
 Pump pump;
 
-void exitControlThread();
+void exitThreadCB();
 std::atomic<bool> exit(false);
 
 void setMode(MovementMode newMode);
@@ -44,6 +44,9 @@ int main(int argc, char** argv)
 
 	dt.calibrate(2.25,360);
 
+    std::thread exitThread(exitThreadCB);
+    exitThread.detach();
+
     for (;;)
     {
         AngleDeg angleToFire;
@@ -61,7 +64,7 @@ int main(int argc, char** argv)
             sleep(1);
 
             // Check for fire
-            found = detector.checkForFire(&angleToFire);
+            found = detector.checkForFire(angleToFire);
         }
 
         // Activate the pump
@@ -72,7 +75,7 @@ int main(int argc, char** argv)
         {
             if (exit.load())
                 goto done;
-            
+
             // Adjust position to look at fire
             // Drive forward .25ft
             dt.turnInPlace(360, angleToFire);
@@ -82,7 +85,7 @@ int main(int argc, char** argv)
             sleep(1);
 
             // Check for fire
-            found = detector.checkForFire(&angleToFire);
+            found = detector.checkForFire(angleToFire);
         }
 
         // Deactivate the pump
@@ -95,7 +98,7 @@ done:
     return 0;
 }
 
-void exitControlThread()
+void exitThreadCB()
 {
     for (;;)
     {
