@@ -18,6 +18,14 @@
 //#define CALIBRATE_DRIVE
 //#define CALIBRATE_TURN
 
+#define DRIVE_RATIO 2.25
+#define TURN_RATIO 360
+
+#define WAIT_TIME 10
+
+#define TURN_INC 30
+#define APPROACH_INC .25
+
 DriveTrain dt;
 Detector detector;
 Pump pump;
@@ -42,7 +50,7 @@ int main(int argc, char** argv)
     return 0;
 #endif
 
-	dt.calibrate(2.25,360);
+	dt.calibrate(DRIVE_RATIO, TURN_RATIO);
 
     std::thread exitThread(exitThreadCB);
     exitThread.detach();
@@ -57,11 +65,11 @@ int main(int argc, char** argv)
             if (exit.load())
                 goto done;
 
-            // Turn 20 degrees in place
-            dt.turnInPlace(360, 20, true);
+            // Turn in place
+            dt.turnInPlace(360, TURN_INC, true);
 
             // Wait a litle bit
-            sleep(1);
+            sleep(WAIT_TIME);
 
             // Check for fire
             found = detector.checkForFire(angleToFire);
@@ -79,10 +87,10 @@ int main(int argc, char** argv)
             // Adjust position to look at fire
             // Drive forward .25ft
             dt.turnInPlace(360, angleToFire);
-            dt.drive(1, .25, true);
+            dt.drive(1, APPROACH_INC, true);
 
             // Wait a litle bit
-            sleep(1);
+            sleep(WAIT_TIME);
 
             // Check for fire
             found = detector.checkForFire(angleToFire);
