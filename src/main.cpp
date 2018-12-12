@@ -21,7 +21,11 @@
 #define DRIVE_RATIO 2.25
 #define TURN_RATIO 360
 
+#ifndef NO_PI
 #define WAIT_TIME 10
+#else
+#define WAIT_TIME 1
+#endif
 
 #define TURN_INC 30
 #define APPROACH_INC .25
