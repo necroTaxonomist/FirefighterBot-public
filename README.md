@@ -36,4 +36,4 @@ Path Creation Implementation:
   Once motion is detected by the camera, the robot sums the locations of all pixels that detect motion, in order to find the center of the area that is moving.  It then uses that position relative to the camera's view as a whole to determine what angle the robot needs to face in order to point at the fire.  Once this angle has been determined, the robot enters Suppression mode.
   
 Suppression Implementation:
-  The robot turns to the angle suggested by Path Creation mode and then turns on the pump, spraying water forward.  The range of the stream is quite long, so the robot does not actually need to leave the patrol route to spray a fire.  Once the reservoir has been emptied, the robot turns back to the heading it was at before, and resumes Patrol mode.
+ Turns on the pump, spraying water forward. The robot then moves forward, stops, goes into Detection mode.  If it sees fire, it sprays again, repeating this until it no longer detects fire.  Then it returns to its original position and reenters patrol mode.
