@@ -26,3 +26,4 @@ Some difficulties involved with this system include:
   * Propagating error due to insufficient motor control
   * Compatibility issues when running the fire detection classifier on the Pi
 
+Demo:
