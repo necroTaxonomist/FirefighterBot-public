@@ -1,5 +1,6 @@
 #include "opencv2/opencv.hpp"
-//#include "include/units.h"
+#include "include/units.h"
+
 typedef float AngleDeg;
 typedef double DurationSec;
 #include <iostream>
@@ -180,14 +181,4 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 	cap.release();
 
 
-}
-
-int main()
-{
-	auto val = processCapture(10);
-	
-	if (val.first)
-		std::cout << "Final Angle: " << val.second << '\n';
-
-	return 0;
 }

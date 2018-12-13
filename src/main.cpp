@@ -11,6 +11,7 @@
 #include <atomic>
 
 #include <unistd.h>
+#include <cstdlib>
 
 #define SIGN(X) ((X) == 0 ? 0 : ((X) > 0 ? 1 : -1))
 #define ABS(X) ((X) * SIGN(X))
@@ -21,12 +22,6 @@
 #define DRIVE_RATIO 2.25
 #define TURN_RATIO 360
 
-#ifndef NO_PI
-#define WAIT_TIME 10
-#else
-#define WAIT_TIME 1
-#endif
-
 #define TURN_INC 30
 #define APPROACH_INC .25
 
@@ -34,7 +29,7 @@ DriveTrain dt;
 Detector detector;
 Pump pump;
 
-void stopThreadCB();
+void controlThreadCB();
 std::atomic<bool> stop(false);
 
 int main(int argc, char** argv)
@@ -54,8 +49,8 @@ int main(int argc, char** argv)
 
 	dt.calibrate(DRIVE_RATIO, TURN_RATIO);
 
-    std::thread stopThread(stopThreadCB);
-    stopThread.detach();
+    std::thread controlThread(controlThreadCB);
+    controlThread.detach();
 
     for (;;)
     {
@@ -70,9 +65,6 @@ int main(int argc, char** argv)
             // Turn in place
             dt.turnInPlace(360, TURN_INC, true);
 
-            // Wait a litle bit
-            sleep(WAIT_TIME);
-
             // Check for fire
             found = detector.checkForFire(angleToFire);
         }
@@ -81,7 +73,7 @@ int main(int argc, char** argv)
         pump.activate();
 
         // Until the fire is gone
-        for (bool found = false; found;)
+        for (bool found = true; found;)
         {
             if (stop.load())
                 goto done;
@@ -90,9 +82,6 @@ int main(int argc, char** argv)
             // Drive forward .25ft
             dt.turnInPlace(360, angleToFire);
             dt.drive(1, APPROACH_INC, true);
-
-            // Wait a litle bit
-            sleep(WAIT_TIME);
 
             // Check for fire
             found = detector.checkForFire(angleToFire);
@@ -108,7 +97,7 @@ done:
     return 0;
 }
 
-void stopThreadCB()
+void controlThreadCB()
 {
     for (;;)
     {
@@ -117,6 +106,24 @@ void stopThreadCB()
 
         if (input == "stop")
             break;
+        else if (input == "find")
+        {
+            float angle = ((rand() % 620) - 310) * .1f;
+            int time =  (random() % 3) + 1;
+
+            if (angle < 0)
+                std::cout << "Simulating fire " << angle << "d right\n";
+            else
+                std::cout << "Simulating fire " << angle << "d left\n";
+
+            detector.update(true, angle);
+
+            sleep(time);
+
+            detector.update(false);
+
+            std::cout << "Simulated fire out\n";
+        }
     }
 
     stop.store(true);

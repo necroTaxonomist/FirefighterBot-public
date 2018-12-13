@@ -1,37 +1,29 @@
 
 #include "detector.h"
 
-void detectorThread(Detector* det);
+#ifndef NO_PI
+#include "fire_detection.h"
+#endif
+
+#include <unistd.h>
+
+#define WAIT_TIME 10
 
 Detector::Detector():
-    done(false),
-    detectThread(nullptr),
     found(false),
     foundAngle(0)
 {
-    detectThread = std::unique_ptr<std::thread>(new std::thread(detectorThread, this));
 }
 
 Detector::~Detector()
 {
-    done.store(true);
-    detectThread->join();
 }
 
 bool Detector::checkForFire(AngleDeg& angle)
 {
+    detect();
+
     std::unique_lock<std::mutex> lk(foundMutex);
-    angle = foundAngle;
-    return found;
-}
-
-bool Detector::waitForFire(bool look, AngleDeg& angle)
-{
-    std::unique_lock<std::mutex> lk(foundMutex);
-
-    while (found != look)
-        foundCond.wait(lk);
-
     angle = foundAngle;
     return found;
 }
@@ -42,13 +34,14 @@ void Detector::update(bool _found, AngleDeg _foundAngle)
 
     found = _found;
     foundAngle = _foundAngle;
-    foundCond.notify_all();
 }
 
-void detectorThread(Detector* det)
+void Detector::detect()
 {
-    while (!det->done.load())
-    {
-        // looks for fire and calls update
-    }
+#ifdef NO_PI
+    sleep(1);
+#else
+    auto val = processCapture(WAIT_TIME);
+    update(val.first, val.second);
+#endif
 }
