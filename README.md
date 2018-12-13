@@ -31,8 +31,11 @@ Some difficulties involved with this system include:
 
 Demo:
 
+FirefighterBot Water Test
 https://youtu.be/GWK5LJAiSWc
 
+FirefighterBot Real Fire Test
 https://youtu.be/jWqstQ8AiOc
 
+FirefighterBot Demo and Instructions
 https://youtu.be/bm2bm8v9Nbk
