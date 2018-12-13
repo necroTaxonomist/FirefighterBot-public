@@ -30,6 +30,9 @@ Some difficulties involved with this system include:
   * Best fire detection classifier implementation choice for different environments 
 
 Demo:
+
 https://youtu.be/GWK5LJAiSWc
+
 https://youtu.be/jWqstQ8AiOc
+
 https://youtu.be/bm2bm8v9Nbk
