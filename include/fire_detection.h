@@ -6,7 +6,7 @@
 #include <chrono>
 #include <utility>
 
-#define MAX_FLAME_COUNT 20
+#define MAX_FLAME_COUNT 5 
 #ifdef DEBUG
 #define OUT(X) std::cout << X << '\n'
 #else
@@ -121,6 +121,7 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 		{
 			cv::Moments mu = cv::moments(cnt);
 			cX += mu.m10/mu.m00;
+			std::cout << "Center: " << cX << '\n';
 		}
 		cX /= contours.size();
 		OUT(9); 
