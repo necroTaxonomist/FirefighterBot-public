@@ -18,6 +18,7 @@
 
 //#define CALIBRATE_DRIVE
 //#define CALIBRATE_TURN
+//#define CALIBRATE_PUMP
 
 #define DRIVE_RATIO 2.25
 #define TURN_RATIO 360
@@ -44,6 +45,12 @@ int main(int argc, char** argv)
     dt.set(-1,1);
     sleep(10);
     dt.set(0,0);
+    return 0;
+#endif
+#ifdef CALIBRATE_PUMP
+    pump.activate();
+    sleep(5);
+    pump.deactivate();
     return 0;
 #endif
 
