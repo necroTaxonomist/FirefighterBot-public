@@ -29,8 +29,8 @@ Motor::~Motor()
 
 void Motor::set(const float& speed)
 {
-    gpioDigitalWrite(fwdPin, SIGN(speed) < 0);
-    gpioDigitalWrite(revPin, SIGN(speed) > 0);
+    gpioDigitalWrite(fwdPin, SIGN(speed) > 0);
+    gpioDigitalWrite(revPin, SIGN(speed) < 0);
     gpioPwmWrite(pwmPin, ABS(speed));
 }
 
