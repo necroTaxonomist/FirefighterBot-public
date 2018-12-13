@@ -26,16 +26,3 @@ Some difficulties involved with this system include:
   * Propagating error due to insufficient motor control
   * Compatibility issues when running the fire detection classifier on the Pi
 
-Patrol Implementation:
-  The robot moves in a 2' by 2' square, stopping every few inches to run through Detection mode.  Since the camera uses motion to detect a fire, it is necessary that the robot be still when looking for fire.  If a fire is not detected, or if a fire is detected and then put out, the robot resumes its patrol.
-
-Detection Implementation:
-  The camera uses a background subtractor to remove any still images from its view.  Once the background subtractor is finished (it takes a couple of seconds to realize things have stopped moving), the camera will only see things that are moving.  Since the idea of this robot is to leave it to patrol a room checking for fires while no one is there, it can be reasonably assumed that any movement is a fire.  The patrol path is somewhat small and limited, but the camera angle is wide, and the robot faces enough directions during its patrol that it can see the entire room without having to pan the camera.  If motion is detected, the robot enters Path Creation mode.  If not, it resumes Patrol mode.
-
-Path Creation Implementation:
-  Once motion is detected by the camera, the robot sums the locations of all pixels that detect motion, in order to find the center of the area that is moving.  It then uses that position relative to the camera's view as a whole to determine what angle the robot needs to face in order to point at the fire.  Once this angle has been determined, the robot enters Suppression mode.
-  
-Suppression Implementation:
- Turns on the pump, spraying water forward. The robot then moves forward, stops, goes into Detection mode.  If it sees fire, it sprays again, repeating this until it no longer detects fire.  Then it returns to its original position and reenters patrol mode.
-
-![alt text](https://github.gatech.edu/tmuldoon3/FirefighterBot/blob/master/LogicDiagram.png)
