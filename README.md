@@ -13,6 +13,8 @@ The robot has the following modes with different functionality:
   * Path Creation: The data from the camera is used to plot best path to fire
   * Suppression: The robot travels the best path, turns on the pump, and releases the water
 
+![alt text](https://github.gatech.edu/tmuldoon3/FirefighterBot/blob/master/LogicDiagram.png)
+
 The ideal robot would follow the following system:
 
   1. The robot is patrolling around a certain set area and looking for fires using a camera through a Raspberry Pi.
@@ -25,5 +27,9 @@ Some difficulties involved with this system include:
   * Ideal path planning is a difficult task because the robot should be able to adjust to different environments
   * Propagating error due to insufficient motor control
   * Compatibility issues when running the fire detection classifier on the Pi
+  * Best fire detection classifier implementation choice for different environments 
 
 Demo:
+https://youtu.be/GWK5LJAiSWc
+https://youtu.be/jWqstQ8AiOc
+https://youtu.be/bm2bm8v9Nbk
