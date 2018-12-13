@@ -27,7 +27,6 @@ private:
     AngleDeg foundAngle;
 
     std::mutex foundMutex;
-    std::condition_variable foundCond;
 
 private:
     void detect();

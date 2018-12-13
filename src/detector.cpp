@@ -1,7 +1,13 @@
 
 #include "detector.h"
 
+#ifndef NO_PI
+#include "fire_detection.h"
+#endif
+
 #include <unistd.h>
+
+#define WAIT_TIME 10
 
 Detector::Detector():
     found(false),
@@ -35,6 +41,7 @@ void Detector::detect()
 #ifdef NO_PI
     sleep(1);
 #else
-    // Do detection stuff here
+    auto val = processCapture(WAIT_TIME);
+    update(val.first, val.second);
 #endif
 }

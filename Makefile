@@ -2,9 +2,10 @@
 TARGET = ff_bot.out
 
 CC = g++
-CFLAGS = --std=c++11 -g
+CFLAGS = --std=c++14 -O2 -g
 LFLAGS = -pthread
-PIFLAGS = -lwiringPi
+CAMFLAGS = $(shell pkg-config --libs --cflags opencv)
+PIFLAGS = -lwiringPi $(CAMFLAGS)
 #PIFLAGS = -D NO_PI
 
 SRCDIR = src
