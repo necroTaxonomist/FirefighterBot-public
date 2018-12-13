@@ -17,3 +17,5 @@ typedef float TimeMs;
 
 typedef float TempF;
 typedef float TempC;
+
+typedef double DurationSec;

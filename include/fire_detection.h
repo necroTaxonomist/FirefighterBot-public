@@ -1,8 +1,5 @@
 #include "opencv2/opencv.hpp"
-#include "include/units.h"
-
-typedef float AngleDeg;
-typedef double DurationSec;
+#include "units.h"
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -169,7 +166,6 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 			pMOG2.release();
 			return std::pair<bool,AngleDeg>(false,0);
 		}
-		//std::cout << "Time Diff: " << time_diff.count() << '\n';
 	} while(cap.isOpened());
 
 	// Delete all windows
