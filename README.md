@@ -29,6 +29,9 @@ Some difficulties involved with this system include:
   * Compatibility issues when running the fire detection classifier on the Pi
   * Best fire detection classifier implementation choice for different environments 
 
+Prototype:
+![alt text](https://github.gatech.edu/tmuldoon3/FirefighterBot/blob/master/images/IMG_0682.jpg)
+
 Demo:
 
 FirefighterBot Water Test
