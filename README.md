@@ -13,7 +13,7 @@ The robot has the following modes with different functionality:
   * Path Creation: The data from the camera is used to plot best path to fire
   * Suppression: The robot travels the best path, turns on the pump, and releases the water
 
-![alt text](https://github.gatech.edu/tmuldoon3/FirefighterBot/blob/master/LogicDiagram.png)
+![alt text](https://github.com/necroTaxonomist/FirefighterBot-public/blob/master/LogicDiagram.png)
 
 The ideal robot would follow the following system:
 
@@ -30,7 +30,7 @@ Some difficulties involved with this system include:
   * Best fire detection classifier implementation choice for different environments 
 
 Prototype:
-![alt text](https://github.gatech.edu/tmuldoon3/FirefighterBot/blob/master/images/IMG_0682.jpg)
+![alt text](https://github.com/necroTaxonomist/FirefighterBot-public/blob/master/images/IMG_0682.jpg)
 
 Demo:
 
