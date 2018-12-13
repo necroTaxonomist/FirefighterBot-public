@@ -9,7 +9,7 @@
 Pump::Pump()
 {
     gpioInit();
-    gpioPinMod(PUMP_PIN, OUTPUT);
+    gpioPinMode(PUMP_PIN, OUTPUT);
 }
 
 Pump::~Pump()

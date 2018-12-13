@@ -34,7 +34,7 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 
 	// Create a window
 	//cv::namedWindow("Original", cv::WINDOW_AUTOSIZE);
-	cv::namedWindow("Result", cv::WINDOW_AUTOSIZE);
+	//cv::namedWindow("Result", cv::WINDOW_AUTOSIZE);
 	
 	if (!cap.isOpened()) 
 	{
@@ -121,11 +121,13 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 		{
 			cv::Moments mu = cv::moments(cnt);
 			cX += mu.m10/mu.m00;
-			std::cout << "Center: " << cX << '\n';
+			//std::cout << "Center: " << cX << '\n';
 		}
 		cX /= contours.size();
 		OUT(9); 
 		float center = cX;
+		
+		bool prev = false;
 		
 		// Print
 		auto t_now = std::chrono::system_clock::now();
@@ -135,8 +137,11 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 			if (!std::isnan(center)) {
 				++flame_count;
 				angle = map(center);
-				std::cout << "Angle: " << angle << '\n';
-				
+				if (!prev)
+				{
+					std::cout << "Fire spotted\n";
+					prev = true;
+				}
 				if(flame_count >= MAX_FLAME_COUNT) 
 				{
 					cv::destroyAllWindows();
@@ -146,11 +151,15 @@ std::pair<bool,AngleDeg> processCapture(DurationSec duration=120)
 				}
 				
 			 } else {
-				std::cout << "no flame" << '\n';
+				if (prev)
+				{
+					std::cout << "Fire lost\n";
+					prev = false;
+				}
 				flame_count = 0;
 			}
 		}
-		cv::imshow("Result",dilation);
+		//cv::imshow("Result",dilation);
 
 		
 

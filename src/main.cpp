@@ -22,8 +22,8 @@
 #define DRIVE_RATIO 2.25
 #define TURN_RATIO 360
 
-#define TURN_INC 90
-#define APPROACH_INC .25
+#define TURN_INC 45
+#define APPROACH_INC 1
 
 DriveTrain dt;
 Detector detector;
